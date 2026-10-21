@@ -1,110 +1,232 @@
-﻿namespace Code2.Net.Dns.Tests.Serializers;
+﻿using Code2.Net.Dns.Common;
+using Code2.Net.Dns.Models;
+using Code2.Net.Dns.Models.Formats;
+using Code2.Net.Dns.WireSerializers;
+using NSubstitute;
+using System;
+using Xunit;
+
+namespace Code2.Net.Dns.Tests.Serializers;
 
 public class ResourceRecordSerializerTests
 {
-	//[Fact]
-	//public void Convert_When_RecordTypeA_Expect_RecordAFormat()
-	//{
-	//	var reader = Substitute.For<IWireReader>();
-	//	var readUInt16Count = 0;
-	//	uint address = 100;
-	//	reader.TryReadName(out Arg.Any<string?>(), out Arg.Any<string?>()).Returns(true);
-	//	reader.TryReadUInt16(out Arg.Any<ushort>()).Returns(x => { 
-	//		if (readUInt16Count == 0) x[0] = Constants.RecordTypes.A;
-	//		if (readUInt16Count == 1) x[0] = Constants.RecordClasses.IN;
-	//		if (readUInt16Count == 2) x[0] = (ushort)100;
-	//		readUInt16Count++;
-	//		return true; 
-	//	});
-	//	reader.TryReadUInt32(out Arg.Any<uint>()).Returns(x => { 
-	//		x[0] = 100U;
-	//		return true; 
-	//	});
-	//	reader.ReadUInt32().Returns(address);
-	//	var converter = new WireToResourceRecordConverter(new RecordOptions());
+	[Fact]
+	public void Deserialize_When_ReadNameFailed_Expect_ResultFail()
+	{
+		var reader = Substitute.For<IWireReader>();
+		reader.TryReadName(out Arg.Any<string?>(), out Arg.Any<string?>()).Returns(false);
+		var serializer = new ResourceRecordSerializer();
 
-	//	var result = converter.Convert(reader);
+		var result = serializer.Deserialize(reader);
 
-	//	if (!result.IsSuccess)
-	//	{
-	//		Assert.Fail(result.Message);
-	//		return;
-	//	}
+		Assert.False(result.IsSuccess);
+	}
 
-	//	var aRecord = (ARecord)result.Value.Data;
+	[Fact]
+	public void Deserialize_When_ReadTypeFailed_Expect_ResultFail()
+	{
+		var reader = Substitute.For<IWireReader>();
+		reader.TryReadName(out Arg.Any<string?>(), out Arg.Any<string?>()).Returns(true);
+		reader.TryReadUInt16(out Arg.Any<ushort>()).Returns(false);
+		var serializer = new ResourceRecordSerializer();
 
-	//	Assert.Equal(address, aRecord.Address);
-	//}
+		var result = serializer.Deserialize(reader);
 
-	//[Fact]
-	//public void Convert_When_RecordTypeUnknown_Expect_RecordNullFormat()
-	//{
-	//	var reader = Substitute.For<IWireReader>();
-	//	ushort length = 100;
-	//	int uint16ReadCount = 0;
-	//	byte firstByteRead = 99;
-	//	reader.TryReadName(out Arg.Any<string?>(), out Arg.Any<string?>()).Returns(true);
-	//	reader.TryReadUInt16(out Arg.Any<ushort>()).Returns(x => {
-	//		x[0] = uint16ReadCount == 2? length: (ushort)0;
-	//		uint16ReadCount++;
-	//		return true;
-	//	});
-	//	reader.TryReadUInt32(out Arg.Any<uint>()).Returns(true);
-	//	reader.When(x=> x.Read(Arg.Any<byte[]>())).Do(x => { var buffer = (byte[])x[0]; buffer[0] = firstByteRead; });
-	//	var converter = new WireToResourceRecordConverter(new RecordOptions());
+		Assert.False(result.IsSuccess);
+	}
 
-	//	var result = converter.Convert(reader);
+	[Fact]
+	public void Deserialize_When_ReadClassFailed_Expect_ResultFail()
+	{
+		var reader = Substitute.For<IWireReader>();
+		reader.TryReadName(out Arg.Any<string?>(), out Arg.Any<string?>()).Returns(true);
+		int i = 0;
+		reader.TryReadUInt16(out Arg.Any<ushort>()).Returns(x => i++<1);
+		var serializer = new ResourceRecordSerializer();
 
-	//	if (!result.IsSuccess)
-	//	{
-	//		Assert.Fail(result.Message);
-	//		return;
-	//	}
+		var result = serializer.Deserialize(reader);
 
-	//	var record = (NullRecord)result.Value.Data;
+		Assert.False(result.IsSuccess);
+	}
 
-	//	Assert.Equal(firstByteRead, record.Value[0]);
-	//	Assert.Equal(length, record.Value.Length);
-	//}
+	[Fact]
+	public void Deserialize_When_ReadLengthFailed_Expect_ResultFail()
+	{
+		var reader = Substitute.For<IWireReader>();
+		reader.TryReadName(out Arg.Any<string?>(), out Arg.Any<string?>()).Returns(true);
+		int i = 0;
+		reader.TryReadUInt16(out Arg.Any<ushort>()).Returns(x => i++ < 2);
+		var serializer = new ResourceRecordSerializer();
 
-	//[Fact]
-	//public void Convert_When_Propertie_Expect_RecordPropertiesSet()
-	//{
-	//	var reader = Substitute.For<IWireReader>();
-	//	var readUInt16Count = 0;
-	//	ushort recordClass = Constants.RecordClasses.IN;
-	//	ushort recordType = Constants.RecordTypes.MF;
-	//	uint recordTtl = 100;
-	//	ushort dataLength = 100;
-	//	string name = "www.test-it.com";
-	//	reader.TryReadName(out Arg.Any<string?>(), out Arg.Any<string?>()).Returns(x => { x[0] = name; return true; });
-	//	reader.TryReadUInt16(out Arg.Any<ushort>()).Returns(x => {
-	//		if (readUInt16Count == 0) x[0] = recordType;
-	//		if (readUInt16Count == 1) x[0] = recordClass;
-	//		if (readUInt16Count == 2) x[0] = dataLength;
-	//		readUInt16Count++;
-	//		return true;
-	//	});
-	//	reader.TryReadUInt32(out Arg.Any<uint>()).Returns(x => {
-	//		x[0] = recordTtl;
-	//		return true;
-	//	});
-	//	var converter = new WireToResourceRecordConverter(new RecordOptions());
+		var result = serializer.Deserialize(reader);
 
-	//	var result = converter.Convert(reader);
+		Assert.False(result.IsSuccess);
+	}
 
-	//	if (!result.IsSuccess)
-	//	{
-	//		Assert.Fail(result.Message);
-	//		return;
-	//	}
+	[Fact]
+	public void Deserialize_When_ReadTtlFailed_Expect_ResultFail()
+	{
+		var reader = Substitute.For<IWireReader>();
+		reader.TryReadName(out Arg.Any<string?>(), out Arg.Any<string?>()).Returns(true);
+		reader.TryReadUInt16(out Arg.Any<ushort>()).Returns(true);
+		reader.TryReadUInt32(out Arg.Any<uint>()).Returns(false);
+		var serializer = new ResourceRecordSerializer();
 
-	//	var record = result.Value;
+		var result = serializer.Deserialize(reader);
 
-	//	Assert.Equal(recordClass, record.Class);
-	//	Assert.Equal(recordType, record.Type);
-	//	Assert.Equal(dataLength, record.DataLength);
-	//	Assert.Equal(recordTtl, record.TimeToLiveInSeconds);
-	//	Assert.Equal(name, record.Name);
-	//}
+		Assert.False(result.IsSuccess);
+	}
+
+	[Fact]
+	public void Deserialize_When_FormatDeserializeFailed_Expect_ResultFail()
+	{
+		var reader = Substitute.For<IWireReader>();
+		reader.TryReadName(out Arg.Any<string?>(), out Arg.Any<string?>()).Returns(true);
+		reader.TryReadUInt16(out Arg.Any<ushort>()).Returns(true);
+		reader.TryReadUInt32(out Arg.Any<uint>()).Returns(true);
+		var formatManager = Substitute.For<IFormatSerializerManager>();
+		formatManager.HasSerializer(Arg.Any<ushort>()).Returns(true);
+		formatManager.Deserialize(Arg.Any<ushort>(), Arg.Any<IWireReader>()).Returns(Result.Fail<object>());
+		var serializer = new ResourceRecordSerializer(formatManager);
+
+		var result = serializer.Deserialize(reader);
+
+		Assert.False(result.IsSuccess);
+	}
+
+	[Fact]
+	public void Deserialize_When_NotHasFormatSerializer_Expect_RecordUnknown()
+	{
+		var reader = Substitute.For<IWireReader>();
+		reader.TryReadName(out Arg.Any<string?>(), out Arg.Any<string?>()).Returns(true);
+		reader.TryReadUInt16(out Arg.Any<ushort>()).Returns(true);
+		reader.TryReadUInt32(out Arg.Any<uint>()).Returns(true);
+		var formatManager = Substitute.For<IFormatSerializerManager>();
+		formatManager.HasSerializer(Arg.Any<ushort>()).Returns(false);
+		var serializer = new ResourceRecordSerializer(formatManager);
+
+		var result = serializer.Deserialize(reader);
+
+		if (!result.IsSuccess)
+		{
+			Assert.Fail(result.Message);
+			return;
+		}
+		var typeExpected = typeof(UnknownRecord);
+		var typeActual = result.Value.Data.GetType();
+
+		Assert.Equal(typeExpected, typeActual);
+	}
+
+	[Fact]
+	public void Deserialize_When_HasFormatSerializer_Expect_RecordTypeForTypeCode()
+	{
+		var reader = Substitute.For<IWireReader>();
+		reader.TryReadName(out Arg.Any<string?>(), out Arg.Any<string?>()).Returns(true);
+		reader.TryReadUInt16(out Arg.Any<ushort>()).Returns(true);
+		reader.TryReadUInt32(out Arg.Any<uint>()).Returns(true);
+		var formatManager = Substitute.For<IFormatSerializerManager>();
+		formatManager.HasSerializer(Arg.Any<ushort>()).Returns(true);
+		formatManager.Deserialize(Arg.Any<ushort>(), Arg.Any<IWireReader>()).Returns(Result.Ok<object>(new ARecord()));
+		var serializer = new ResourceRecordSerializer(formatManager);
+
+		var result = serializer.Deserialize(reader);
+
+		if (!result.IsSuccess)
+		{
+			Assert.Fail(result.Message);
+			return;
+		}
+		var typeExpected = typeof(ARecord);
+		var typeActual = result.Value.Data.GetType();
+
+		Assert.Equal(typeExpected, typeActual);
+	}
+
+	[Fact]
+	public void Serialize_When_PropertiesGiven_Expect_PropertiesSet()
+	{
+		var writer = Substitute.For<IWireWriter>();
+		var formatManager = Substitute.For<IFormatSerializerManager>();
+		formatManager.HasSerializer(Arg.Any<ushort>()).Returns(false);
+		string name = string.Empty;
+		ushort[] u16Values = new ushort[3];
+		uint ttl = 0;
+		ushort dataLength = 0;
+		int i = 0;
+		writer.TryWriteName(Arg.Any<string?>(), out Arg.Any<string?>()).Returns(x => { name = (string)x[0]; return true; });
+		writer.When(x => x.WriteUInt16(Arg.Any<ushort>())).Do(x => u16Values[i++] = x.Arg<ushort>());
+		writer.When(x => x.WriteUInt32(Arg.Any<uint>())).Do(x => ttl = x.Arg<uint>());
+		writer.When(x => x.Write(Arg.Any<byte[]>())).Do(x => dataLength = (ushort)x.Arg<byte[]>().Length);
+		var serializer = new ResourceRecordSerializer(formatManager);
+		var record = new ResourceRecord() { Name = "test-it.com", Type = Constants.RecordTypes.A, Class = Constants.RecordClasses.ANY, TimeToLiveInSeconds = 60 };
+
+		serializer.Serialize(writer, record);
+
+		Assert.Equal(record.Name, name);
+		Assert.Equal(record.Type, u16Values[0]);
+		Assert.Equal(record.Class, u16Values[1]);
+		Assert.Equal(record.DataLength, dataLength);
+		Assert.Equal(record.TimeToLiveInSeconds, ttl);
+	}
+
+	[Fact]
+	public void Serialize_When_FormatSerializeFails_Expect_ResultFail()
+	{
+		var writer = Substitute.For<IWireWriter>();
+		var formatManager = Substitute.For<IFormatSerializerManager>();
+		formatManager.HasSerializer(Arg.Any<ushort>()).Returns(true);
+		formatManager.Serialize(Arg.Any<ushort>(), Arg.Any<IWireWriter>(), Arg.Any<object>()).Returns(Result.Fail());
+		var serializer = new ResourceRecordSerializer(formatManager);
+		var record = new ResourceRecord();
+
+		var result = serializer.Serialize(writer, record);
+
+		Assert.False(result.IsSuccess);
+	}
+
+	[Fact]
+	public void Serialize_When_FormatNotUnknownTypeAndNoFormatSerializer_Expect_ResultFail()
+	{
+		var writer = Substitute.For<IWireWriter>();
+		var formatManager = Substitute.For<IFormatSerializerManager>();
+		formatManager.HasSerializer(Arg.Any<ushort>()).Returns(false);
+		var serializer = new ResourceRecordSerializer(formatManager);
+		var record = new ResourceRecord() { Type = 1, Data = new ARecord() };
+
+		var result = serializer.Serialize(writer, record);
+
+		Assert.False(result.IsSuccess);
+	}
+
+	[Fact]
+	public void Serialize_When_FormatNotUnknownTypeAndFormatSerializerTypeMismatch_Expect_ResultFail()
+	{
+		var writer = Substitute.For<IWireWriter>();
+		var formatManager = Substitute.For<IFormatSerializerManager>();
+		formatManager.HasSerializer(Arg.Any<ushort>()).Returns(true);
+		formatManager.IsMatch(Arg.Any<ushort>(), Arg.Any<Type>()).Returns(false);
+		var serializer = new ResourceRecordSerializer(formatManager);
+		var record = new ResourceRecord() { Type = 1, Data = new ARecord() };
+
+		var result = serializer.Serialize(writer, record);
+
+		Assert.False(result.IsSuccess);
+	}
+
+	[Fact]
+	public void Serialize_When_FormatIsUnknownType_Expect_UnknownRecordValueWritten()
+	{
+		var writer = Substitute.For<IWireWriter>();
+		writer.TryWriteName(Arg.Any<string?>(), out Arg.Any<string?>()).Returns(true);
+		var serializer = new ResourceRecordSerializer();
+		var format = new UnknownRecord { Value = new byte[10] };
+		var record = new ResourceRecord() { Data = format };
+		var dataLength = 0;
+		writer.When(x => x.Write(Arg.Any<byte[]>())).Do(x => dataLength = x.Arg<byte[]>().Length);
+
+		var result = serializer.Serialize(writer, record);
+
+		Assert.Equal(format.Value.Length, dataLength);
+	}
 }

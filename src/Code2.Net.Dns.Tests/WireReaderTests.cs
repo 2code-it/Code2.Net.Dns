@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Xunit;
 
 namespace Code2.Net.Dns.Tests;
 
@@ -13,8 +14,7 @@ public class WireReaderTests
 	public void CanRead_When_DataLengthAndPositionAndSizeAreProvided_Expect_ExpectedResult(int dataLength, int position, int canReadSize, bool expectedResult)
 	{
 		var data = new byte[dataLength];
-		var reader = new WireReader(data);
-		reader.Position = position;
+		var reader = new WireReader(data) { Position = position };
 
 		var result = reader.CanRead(canReadSize);
 
@@ -169,7 +169,7 @@ public class WireReaderTests
 	{
 		var name = "www.test-it.com";
 		var data = GetLabelBytes(name);
-		data = data.Concat(new byte[] { 0b1100_0000, 0b0000_0001 }).ToArray();
+		data = [.. data, .. new byte[] { 0b1100_0000, 0b0000_0001 }];
 		var reader = new WireReader(data);
 
 		var result = reader.TryReadName(out _, out var error);
@@ -178,127 +178,6 @@ public class WireReaderTests
 		Assert.NotNull(error);
 	}
 
-	//[Fact]
-	//public void ReadHeader_When_DataToReadIsLessThan12_Expect_ResultFail()
-	//{
-	//	var data = new byte[0];
-	//	var reader = new WireReader(data);
-
-	//	var result = reader.ReadHeader();
-
-	//	Assert.False(result.IsSuccess);
-	//}
-
-	//[Fact]
-	//public void ReadHeader_When_NetworkBytesAreProvided_Expected_HeaderValuesSet()
-	//{
-	//	byte[] data = [0, 1, 0b10001110, 0b00000011, 0, 1, 0, 1, 0, 0, 0, 0];
-	//	var reader = new WireReader(data);
-	//	var result = reader.ReadHeader();
-
-	//	if (!result.IsSuccess)
-	//	{
-	//		Assert.Fail(result.Message);
-	//		return;
-	//	}
-
-	//	Assert.Equal(1, result.Value.Id);
-	//	Assert.True(result.Value.IsResponse);
-	//	Assert.Equal(1, result.Value.OperationCode);
-	//	Assert.True(result.Value.IsAuthoritativeAnswer);
-	//	Assert.True(result.Value.IsTruncated);
-	//	Assert.Equal(3, result.Value.ResponseCode);
-	//	Assert.Equal(1, result.Value.QuestionCount);
-	//	Assert.Equal(1, result.Value.AnswerRecordCount);
-	//}
-
-	//[Fact]
-	//public void ReadName_When_NameRead_Expect_PopulatedPointerCache()
-	//{
-	//	string name = "www.test-name.com";
-	//	byte[] labelBytes = GetLabelBytes(name);
-	//	byte[] data = [.. labelBytes, 0];
-	//	var reader = new WireReader(data);
-
-	//	var result = reader.ReadName();
-	//	var pointers = reader.GetCachedPointers();
-
-	//	if (!result.IsSuccess)
-	//	{
-	//		Assert.Fail(result.Message);
-	//		return;
-	//	}
-
-	//	Assert.Equal(name, result.Value);
-	//	Assert.Equal(name, pointers[0].Value);
-	//	Assert.Equal(name.Split('.', 2)[1], pointers[1].Value);
-	//	Assert.Equal(name.Split('.', 3)[2], pointers[2].Value);
-	//	Assert.Equal(0, pointers[0].Position);
-	//}
-
-	//[Fact]
-	//public void ReadName_When_NameContainsInvalidPointer_Expect_ResultFail()
-	//{
-	//	byte[] data = [3, 119, 119, 119, 0b1100_0000, 1];
-	//	var reader = new WireReader(data);
-
-	//	var result = reader.ReadName();
-
-	//	Assert.False(result.IsSuccess);
-	//	Assert.Contains("Invalid label pointer", result.Message);
-	//}
-
-	//[Fact]
-	//public void ReadName_When_LabelExceedsMaxLength_Expect_ResultFail()
-	//{
-	//	byte[] data = [64, 119, 119, 119];
-	//	var reader = new WireReader(data);
-
-	//	var result = reader.ReadName();
-
-	//	Assert.False(result.IsSuccess);
-	//	Assert.Contains("exceeds max length", result.Message);
-	//}
-
-
-	//[Fact]
-	//public void ReadQuestion_When_ReadValidQuestion_Expect_ResulSuccess()
-	//{
-	//	var name = "www.test-name.com";
-	//	ushort type = Constants.RecordTypes.A;
-	//	ushort cls = Constants.RecordClasses.IN;
-	//	byte[] data = [.. GetLabelBytes(name), 0, 0, (byte)type, 0, (byte)cls];
-	//	var reader = new WireReader(data);
-
-	//	var result = reader.ReadQuestion();
-
-	//	Assert.True(result.IsSuccess);
-	//	Assert.Equal(name, result.Value.Name);
-	//	Assert.Equal(type, result.Value.Type);
-	//	Assert.Equal(cls, result.Value.Class);
-	//}
-
-	//[Fact]
-	//public void ReadResourceRecord_When_ReadValidResourceRecord_Expect_ResultSuccess()
-	//{
-	//	var name = "www.test-name.com";
-	//	ushort type = Constants.RecordTypes.A;
-	//	ushort cls = Constants.RecordClasses.IN;
-	//	uint ttl = 100;
-	//	byte[] rrData = [192, 168, 1, 1];
-	//	byte[] data = [.. GetLabelBytes(name), 0, 0, (byte)type, 0, (byte)cls, 0, 0, 0, (byte)ttl, 0, (byte)rrData.Length, .. rrData];
-	//	var reader = new WireReader(data);
-
-	//	var result = reader.ReadResourceRecord();
-
-	//	Assert.True(result.IsSuccess);
-	//	Assert.Equal(name, result.Value.Name);
-	//	Assert.Equal(type, result.Value.Type);
-	//	Assert.Equal(cls, result.Value.Class);
-	//	Assert.Equal(ttl, result.Value.TimeToLiveInSeconds);
-	//	Assert.Equal(rrData, result.Value.Data);
-	//}
-
-	private byte[] GetLabelBytes(string name)
-		=> name.Split('.').SelectMany(x => new byte[] { (byte)x.Length }.Concat(x.Select(c => (byte)c))).ToArray();
+	private static byte[] GetLabelBytes(string name)
+		=> [.. name.Split('.').SelectMany(x => new byte[] { (byte)x.Length }.Concat(x.Select(c => (byte)c)))];
 }

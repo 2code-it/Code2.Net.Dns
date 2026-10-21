@@ -2,6 +2,7 @@
 using Code2.Net.Dns.WireSerializers.Formats;
 using NSubstitute;
 using System;
+using Xunit;
 
 namespace Code2.Net.Dns.Tests.Serializers.Formats;
 

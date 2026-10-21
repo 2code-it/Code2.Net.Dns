@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Xunit;
 
 namespace Code2.Net.Dns.Tests;
 
@@ -25,9 +26,9 @@ public class WireWriterTests
 		var totalLength = name1.Length + name2.Length + name3.Length;
 		var writer = new WireWriter();
 
-		writer.TryWriteName(name1, out var error1);
-		writer.TryWriteName(name2, out var error2);
-		writer.TryWriteName(name3, out var error3);
+		writer.TryWriteName(name1, out _);
+		writer.TryWriteName(name2, out _);
+		writer.TryWriteName(name3, out _);
 
 		var data = writer.ToArray();
 		Assert.True(totalLength > writer.Position);
@@ -101,6 +102,6 @@ public class WireWriterTests
 		Assert.Equal(16, writer.Position);
 	}
 
-	private bool IsPointer(byte data)
+	private static bool IsPointer(byte data)
 		=> (data & 0b1100_0000) == 0b1100_0000;
 }

@@ -1,4 +1,5 @@
 ﻿using Code2.Net.Dns.Internal;
+using Xunit;
 
 namespace Code2.Net.Dns.Tests.Internals;
 

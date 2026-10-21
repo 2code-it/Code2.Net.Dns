@@ -36,7 +36,8 @@ public class ResourceRecordSerializer : IWireSerializer<ResourceRecord>
 		object? recordData = null;
 		if (_serializerManager.HasSerializer(typeCode))
 		{
-			var result = _serializerManager.Deserialize(typeCode, reader);
+			var dataReader = reader.Read(length);
+			var result = _serializerManager.Deserialize(typeCode, dataReader);
 			if (!result.IsSuccess) return Result.Fail<ResourceRecord>(result);
 			recordData = result.Value;
 		}
@@ -57,13 +58,14 @@ public class ResourceRecordSerializer : IWireSerializer<ResourceRecord>
 	{
 		var formatWriter = new WireWriter();
 		var type = value.Data.GetType();
-		if (type == typeof(UnknownRecord) || !_serializerManager.HasSerializer(type))
+		if (type == typeof(UnknownRecord))
 		{
 			var format = (UnknownRecord)value.Data;
 			formatWriter.Write(format.Value);
 		}
 		else
 		{
+			if (!_serializerManager.HasSerializer(type)) return Result.Fail($"Can't serialize type {type.Name}");
 			if (!_serializerManager.IsMatch(value.Type, type)) return Result.Fail($"Type code {value.Type} does not match type {type.Name}");
 			var result = _serializerManager.Serialize(value.Type, formatWriter, value.Data);
 			if (!result.IsSuccess) return result;

@@ -1,6 +1,7 @@
 ﻿using Code2.Net.Dns.Models;
 using Code2.Net.Dns.WireSerializers;
 using NSubstitute;
+using Xunit;
 
 namespace Code2.Net.Dns.Tests.Serializers;
 
@@ -58,7 +59,6 @@ public class MessageHeaderSerializerTests
 	{
 		var reader = Substitute.For<IWireReader>();
 		reader.CanRead(Arg.Any<int>()).Returns(false);
-		var header = new MessageHeader();
 		var serializer = new MessageHeaderSerializer();
 
 		var result = serializer.Deserialize(reader);

@@ -3,6 +3,7 @@ using Code2.Net.Dns.Models.Formats;
 using Code2.Net.Dns.WireSerializers.Formats;
 using NSubstitute;
 using System;
+using Xunit;
 
 namespace Code2.Net.Dns.Tests;
 
