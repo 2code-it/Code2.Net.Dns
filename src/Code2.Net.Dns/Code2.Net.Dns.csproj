@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<LangVersion>13.0</LangVersion>
+		<IsPackable>true</IsPackable>
+
+		<Title>$(AssemblyName)</Title>
+		<Authors>2code</Authors>
+		<PackageProjectUrl>https://github.com/2code-it/Code2.Net.Dns</PackageProjectUrl>
+		<PackageTags>DNS </PackageTags>
+		<RepositoryUrl>https://github.com/2code-it/Code2.Net.Dns.git</RepositoryUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<Description>Message bus for inprocess messaging</Description>
+		<PackageLicenseExpression>BSD-2-Clause</PackageLicenseExpression>
+		<OutputType>Library</OutputType>
+		<Deterministic>true</Deterministic>
+		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+	</PropertyGroup>
+
+
+
+	<ItemGroup>
+		<None Include="..\..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>$(AssemblyName).Tests</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
+
+</Project>

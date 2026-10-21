@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Code2.Net.Dns.Tests/Code2.Net.Dns.Tests.csproj" Id="fd3fa72d-043a-426e-a938-8dcb7db3eb46" />
+  <Project Path="Code2.Net.Dns/Code2.Net.Dns.csproj" />
+</Solution>
