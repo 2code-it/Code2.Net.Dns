@@ -26,7 +26,7 @@ public class MessageHeaderSerializerTests
 			AnswerRecordCount = 2,
 			NameServerRecordCount = 3,
 			AdditionalRecordCount = 4,
-			
+
 		};
 		int i = 0;
 		var header2 = new MessageHeader();

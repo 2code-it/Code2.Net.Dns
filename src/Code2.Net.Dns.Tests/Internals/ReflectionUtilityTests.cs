@@ -1,7 +1,4 @@
 ﻿using Code2.Net.Dns.Internal;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Code2.Net.Dns.Tests.Internals;
 

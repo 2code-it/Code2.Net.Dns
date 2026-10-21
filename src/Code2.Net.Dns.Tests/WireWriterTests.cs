@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 
 namespace Code2.Net.Dns.Tests;
 
@@ -53,7 +50,7 @@ public class WireWriterTests
 	[Fact]
 	public void TryWriteName_When_NameLengthGreaterThan255_Expect_ErrorSet()
 	{
-		string name = string.Join('.', Enumerable.Range(0,25).Select(x => "aabbccddee"));
+		string name = string.Join('.', Enumerable.Range(0, 25).Select(x => "aabbccddee"));
 		var writer = new WireWriter();
 
 		var result = writer.TryWriteName(name, out var error);

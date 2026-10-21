@@ -1,13 +1,8 @@
 ﻿using Code2.Net.Dns.Common;
-using Code2.Net.Dns.Internal;
 using Code2.Net.Dns.Models;
-using Code2.Net.Dns.Models.Formats;
 using Code2.Net.Dns.WireSerializers;
 using NSubstitute;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Code2.Net.Dns.Tests.Serializers;
 
@@ -23,7 +18,7 @@ public class MessageSerializerTests
 	private readonly IWireSerializer<MessageHeader> _headerSerializer;
 	private readonly IWireSerializer<Question> _questionSerializer;
 	private readonly IWireSerializer<ResourceRecord> _recordSerializer;
-	
+
 
 	[Fact]
 	public void Deserialize_When_HeaderDeserializeFails_Expect_ResultFail()
@@ -41,7 +36,7 @@ public class MessageSerializerTests
 	public void Deserialize_When_QuestionDeserializeFails_Expect_ResultFail()
 	{
 		var reader = Substitute.For<IWireReader>();
-		_headerSerializer.Deserialize(Arg.Any<IWireReader>()).Returns(Result.Ok(new MessageHeader() { QuestionCount = 1}));
+		_headerSerializer.Deserialize(Arg.Any<IWireReader>()).Returns(Result.Ok(new MessageHeader() { QuestionCount = 1 }));
 		_questionSerializer.Deserialize(Arg.Any<IWireReader>()).Returns(Result.Fail<Question>());
 		var serializer = new MessageSerializer(_headerSerializer, _questionSerializer, _recordSerializer);
 
@@ -64,7 +59,7 @@ public class MessageSerializerTests
 	}
 
 	[Theory]
-	[InlineData(1, 0,0,0)]
+	[InlineData(1, 0, 0, 0)]
 	[InlineData(1, 4, 1, 3)]
 	[InlineData(1, 1, 1, 10)]
 	public void Deserialize_When_HeaderRecordCountSet_Expect_RecordDeserializeCount(ushort questionCount, ushort answerCount, ushort serverRecordCount, ushort additionalRecordCount)
@@ -146,7 +141,7 @@ public class MessageSerializerTests
 	[InlineData(1, 1, 1, 10)]
 	public void Serialize_When_HeaderRecordCountSet_Expect_RecordSerializeCount(ushort questionCount, ushort answerCount, ushort serverRecordCount, ushort additionalRecordCount)
 	{
-		var writer = Substitute.For<IWireWriter>();		
+		var writer = Substitute.For<IWireWriter>();
 		_headerSerializer.Serialize(Arg.Any<IWireWriter>(), Arg.Any<MessageHeader>()).Returns(Result.Ok());
 		_questionSerializer.Serialize(Arg.Any<IWireWriter>(), Arg.Any<Question>()).Returns(Result.Ok());
 		_recordSerializer.Serialize(Arg.Any<IWireWriter>(), Arg.Any<ResourceRecord>()).Returns(Result.Ok());

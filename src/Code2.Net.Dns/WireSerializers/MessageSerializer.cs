@@ -1,5 +1,4 @@
 ﻿using Code2.Net.Dns.Common;
-using Code2.Net.Dns.Internal;
 using Code2.Net.Dns.Models;
 using System.Collections.Generic;
 

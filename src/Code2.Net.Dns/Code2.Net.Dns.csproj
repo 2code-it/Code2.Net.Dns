@@ -13,7 +13,7 @@
 		<PackageTags>DNS </PackageTags>
 		<RepositoryUrl>https://github.com/2code-it/Code2.Net.Dns.git</RepositoryUrl>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<Description>Message bus for inprocess messaging</Description>
+		<Description>Minimal DNS library (rfc1035)</Description>
 		<PackageLicenseExpression>BSD-2-Clause</PackageLicenseExpression>
 		<OutputType>Library</OutputType>
 		<Deterministic>true</Deterministic>

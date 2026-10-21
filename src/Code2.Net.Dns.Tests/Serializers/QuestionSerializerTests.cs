@@ -1,8 +1,5 @@
 ﻿using Code2.Net.Dns.WireSerializers;
 using NSubstitute;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Code2.Net.Dns.Tests.Serializers;
 

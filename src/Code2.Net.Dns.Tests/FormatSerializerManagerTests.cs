@@ -1,12 +1,8 @@
 ﻿using Code2.Net.Dns.Internal;
 using Code2.Net.Dns.Models.Formats;
-using Code2.Net.Dns.WireSerializers;
 using Code2.Net.Dns.WireSerializers.Formats;
 using NSubstitute;
 using System;
-using System.Collections.Generic;
-using System.Reflection.Metadata;
-using System.Text;
 
 namespace Code2.Net.Dns.Tests;
 
