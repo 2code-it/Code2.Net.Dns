@@ -3,10 +3,8 @@ using Code2.Net.Dns.Models.Formats;
 
 namespace Code2.Net.Dns.WireSerializers.Formats;
 
-public class MxRecordSerializer : IWireSerializer<MxRecord>, IFormatWireSerializer
+public class MxRecordSerializer : IWireSerializer<MxRecord>
 {
-	public ushort RecordTypeCode => Constants.RecordTypes.MX;
-
 	public IResult<MxRecord> Deserialize(IWireReader reader)
 	{
 		if (!reader.TryReadUInt16(out var preference)) return Result.Fail<MxRecord>("Failed to read preference");

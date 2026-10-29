@@ -3,10 +3,8 @@ using Code2.Net.Dns.Models.Formats;
 
 namespace Code2.Net.Dns.WireSerializers.Formats;
 
-public class SoaRecordSerializer : IWireSerializer<SoaRecord>, IFormatWireSerializer
+public class SoaRecordSerializer : IWireSerializer<SoaRecord>
 {
-	public ushort RecordTypeCode => Constants.RecordTypes.SOA;
-
 	public IResult<SoaRecord> Deserialize(IWireReader reader)
 	{
 

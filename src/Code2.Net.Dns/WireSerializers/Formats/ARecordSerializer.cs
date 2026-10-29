@@ -3,9 +3,8 @@ using Code2.Net.Dns.Models.Formats;
 
 namespace Code2.Net.Dns.WireSerializers.Formats;
 
-public class ARecordSerializer : IWireSerializer<ARecord>, IFormatWireSerializer
+public class ARecordSerializer : IWireSerializer<ARecord>
 {
-	public ushort RecordTypeCode => Constants.RecordTypes.A;
 	public IResult<ARecord> Deserialize(IWireReader reader)
 	{
 		if (!reader.TryReadUInt32(out var address)) return Result.Fail<ARecord>("Failed to read address");

@@ -1,17 +1,10 @@
 ﻿using Code2.Net.Dns.Common;
 using Code2.Net.Dns.Models;
-using Code2.Net.Dns.Models.Formats;
 
 namespace Code2.Net.Dns.WireSerializers;
 
 public class ResourceRecordSerializer : IWireSerializer<ResourceRecord>
 {
-	private readonly IFormatSerializerManager _serializerManager;
-	public ResourceRecordSerializer() : this(null) { }
-	public ResourceRecordSerializer(IFormatSerializerManager? serializerManager)
-	{
-		_serializerManager = serializerManager ?? FormatSerializerManager.Instance;
-	}
 
 	private static IWireSerializer<ResourceRecord>? _instance;
 	public static IWireSerializer<ResourceRecord> Instance => _instance ?? (_instance = new ResourceRecordSerializer());
@@ -23,6 +16,9 @@ public class ResourceRecordSerializer : IWireSerializer<ResourceRecord>
 		if (!reader.TryReadUInt16(out var cls)) return Result.Fail<ResourceRecord>("Failed to read resource record class.");
 		if (!reader.TryReadUInt32(out var ttl)) return Result.Fail<ResourceRecord>("Failed to read resource record ttl.");
 		if (!reader.TryReadUInt16(out var length)) return Result.Fail<ResourceRecord>("Failed to read resource record data length.");
+		if (!reader.CanRead(length)) return Result.Fail<ResourceRecord>("Failed to read resource record data length exceeds actual data.");
+		var data = new byte[length];
+		reader.Read(data);
 
 		var record = new ResourceRecord
 		{
@@ -30,53 +26,21 @@ public class ResourceRecordSerializer : IWireSerializer<ResourceRecord>
 			Type = typeCode,
 			Class = cls,
 			TimeToLiveInSeconds = ttl,
-			DataLength = length
+			DataLength = length,
+			Data = data
 		};
-
-		object? recordData = null;
-		if (_serializerManager.HasSerializer(typeCode))
-		{
-			var dataReader = reader.Read(length);
-			var result = _serializerManager.Deserialize(typeCode, dataReader);
-			if (!result.IsSuccess) return Result.Fail<ResourceRecord>(result);
-			recordData = result.Value;
-		}
-
-		if (recordData is null)
-		{
-			var data = new byte[length];
-			reader.Read(data);
-			recordData = new UnknownRecord() { Value = data };
-		}
-
-		record.Data = recordData;
 
 		return Result.Ok(record);
 	}
 
 	public IResult Serialize(IWireWriter writer, ResourceRecord value)
 	{
-		var formatWriter = new WireWriter();
-		var type = value.Data.GetType();
-		if (type == typeof(UnknownRecord))
-		{
-			var format = (UnknownRecord)value.Data;
-			formatWriter.Write(format.Value);
-		}
-		else
-		{
-			if (!_serializerManager.HasSerializer(type)) return Result.Fail($"Can't serialize type {type.Name}");
-			if (!_serializerManager.IsMatch(value.Type, type)) return Result.Fail($"Type code {value.Type} does not match type {type.Name}");
-			var result = _serializerManager.Serialize(value.Type, formatWriter, value.Data);
-			if (!result.IsSuccess) return result;
-		}
-
 		if (!writer.TryWriteName(value.Name, out var error)) return Result.Fail(error);
 		writer.WriteUInt16(value.Type);
 		writer.WriteUInt16(value.Class);
 		writer.WriteUInt32(value.TimeToLiveInSeconds);
-		writer.WriteUInt16((ushort)formatWriter.Position);
-		writer.Write(formatWriter.ToArray());
+		writer.WriteUInt16((ushort)value.Data.Length);
+		writer.Write(value.Data);
 		return Result.Ok();
 	}
 }

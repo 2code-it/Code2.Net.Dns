@@ -1,6 +1,6 @@
 ﻿namespace Code2.Net.Dns;
 
-public static class Constants
+public static class DnsConstants
 {
 	public static class RecordTypes
 	{

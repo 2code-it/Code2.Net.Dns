@@ -88,7 +88,7 @@ public class QuestionSerializerTests()
 	{
 		var writer = Substitute.For<IWireWriter>();
 		var serializer = new QuestionSerializer();
-		var question = new Question() { Name = "test-it.com", Type = Constants.RecordTypes.A, Class = Constants.RecordClasses.ANY };
+		var question = new Question() { Name = "test-it.com", Type = DnsConstants.RecordTypes.A, Class = DnsConstants.RecordClasses.ANY };
 		string? name = null;
 		ushort[] u16Values = new ushort[2];
 		int i = 0;

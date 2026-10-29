@@ -1,6 +1,4 @@
-﻿using Code2.Net.Dns.Models.Formats;
-
-namespace Code2.Net.Dns.Models;
+﻿namespace Code2.Net.Dns.Models;
 
 public class ResourceRecord
 {
@@ -9,5 +7,5 @@ public class ResourceRecord
 	public ushort Class { get; set; }
 	public uint TimeToLiveInSeconds { get; set; }
 	public ushort DataLength { get; set; }
-	public object Data { get; set; } = new UnknownRecord();
+	public byte[] Data { get; set; } = [];
 }

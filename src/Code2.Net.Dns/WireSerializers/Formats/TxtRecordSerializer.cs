@@ -4,10 +4,8 @@ using System.Text;
 
 namespace Code2.Net.Dns.WireSerializers.Formats;
 
-public class TxtRecordSerializer : IWireSerializer<TxtRecord>, IFormatWireSerializer
+public class TxtRecordSerializer : IWireSerializer<TxtRecord>
 {
-	public ushort RecordTypeCode => Constants.RecordTypes.TXT;
-
 	public IResult<TxtRecord> Deserialize(IWireReader reader)
 	{
 		var data = new byte[reader.Length];

@@ -6,16 +6,20 @@ namespace Code2.Net.Dns.Tests.Internals;
 public class ReflectionUtilityTests
 {
 	[Fact]
-	public void InvokePrivateGenericMethod_When_Invoked_Expect_PrivateGenericMethodInvocation()
+	public void GetNonFrameworkTypes_When_FilterUsed_Expect_FilteredTypes()
 	{
 		var reflection = new ReflectionUtility();
-		var type = typeof(uint);
-		var value = 10U;
-		string expected = $"{type.Name} = {value}";
+		var typeSuffix = "Serializer";
 
-		string result = (string)reflection.InvokePrivateGenericMethod(this, nameof(GetTypeName), [type], [value])!;
+		var types = reflection.GetNonFrameworkTypes(x => x.Name.EndsWith(typeSuffix));
 
-		Assert.Equal(expected, result);
+		if (types.Length == 0)
+		{
+			Assert.Fail($"No types found ending with '{typeSuffix}'");
+			return;
+		}
+
+		Assert.EndsWith(typeSuffix, types[0].Name);
 	}
 
 	private string GetTypeName<T>(T source)

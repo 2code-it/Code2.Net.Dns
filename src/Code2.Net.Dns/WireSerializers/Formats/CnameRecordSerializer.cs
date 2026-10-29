@@ -3,10 +3,8 @@ using Code2.Net.Dns.Models.Formats;
 
 namespace Code2.Net.Dns.WireSerializers.Formats;
 
-public class CnameRecordSerializer : IWireSerializer<CnameRecord>, IFormatWireSerializer
+public class CnameRecordSerializer : IWireSerializer<CnameRecord>
 {
-	public ushort RecordTypeCode => Constants.RecordTypes.CNAME;
-
 	public IResult<CnameRecord> Deserialize(IWireReader reader)
 	{
 		if (!reader.TryReadName(out var name, out var error)) return Result.Fail<CnameRecord>(error);

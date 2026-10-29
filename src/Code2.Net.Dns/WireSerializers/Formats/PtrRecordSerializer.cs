@@ -3,10 +3,8 @@ using Code2.Net.Dns.Models.Formats;
 
 namespace Code2.Net.Dns.WireSerializers.Formats;
 
-public class PtrRecordSerializer : IWireSerializer<PtrRecord>, IFormatWireSerializer
+public class PtrRecordSerializer : IWireSerializer<PtrRecord>
 {
-	public ushort RecordTypeCode => Constants.RecordTypes.PTR;
-
 	public IResult<PtrRecord> Deserialize(IWireReader reader)
 	{
 		if (!reader.TryReadName(out var name, out var error)) return Result.Fail<PtrRecord>(error);
